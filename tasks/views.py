@@ -5,7 +5,8 @@ from .models import Task, User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
 from .serializers import (TaskSerializer, TaskCreateSerializer, 
-                         TaskAssignSerializer, UserSerializer, UserRegistrationSerializer)
+                         TaskAssignSerializer)
+from .auth_serializers import UserSerializer, UserRegistrationSerializer
 
 class TaskCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]

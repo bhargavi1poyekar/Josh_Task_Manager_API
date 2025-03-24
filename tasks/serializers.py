@@ -1,63 +1,6 @@
 from rest_framework import serializers
 from .models import Task, User
-
-class UserSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'name', 'email', 'mobile']
-        extra_kwargs = {
-            'username': {'read_only': True}
-        }
-    
-    def get_name(self, obj):
-        return obj.name
-
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
-    )
-    password2 = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
-    )
-    
-    class Meta:
-        model = User
-        fields = [
-            'username', 
-            'password', 
-            'password2',
-            'email', 
-            'first_name', 
-            'last_name', 
-            'mobile'
-        ]
-        extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'email': {'required': True}
-        }
-    
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
-            )
-        return attrs
-    
-    def create(self, validated_data):
-        # Remove password2 from validated_data
-        validated_data.pop('password2')
-        
-        user = User.objects.create_user(
-            **validated_data
-        )
-        return user
+from .auth_serializers import UserSerializer
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_users = UserSerializer(many=True, read_only=True)
@@ -77,3 +20,16 @@ class TaskAssignSerializer(serializers.Serializer):
         child=serializers.IntegerField(),
         write_only=True
     )
+
+    def validate_user_ids(self, value):
+        # Check all user IDs exist
+        existing_ids = set(User.objects.filter(
+            id__in=value
+        ).values_list('id', flat=True))
+        
+        missing_ids = set(value) - existing_ids
+        if missing_ids:
+            raise serializers.ValidationError(
+                f"Users not found: {sorted(missing_ids)}"
+            )
+        return value

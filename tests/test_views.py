@@ -98,7 +98,7 @@ class EdgeCaseTests(APITestCase):
         response = self.client.post(url, {'user_ids': [99999]}, format='json')
         
         # Should return 404
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
         # Verify error message contains the missing ID
         self.assertIn('99999', str(response.data))

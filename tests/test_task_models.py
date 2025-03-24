@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from tasks.models import User, Task
+from tasks.models import Task
+from users.models import User
 from datetime import datetime
 from django.contrib.auth.hashers import check_password
-from tasks.models import User, Task
+
 
 class UserModelTest(TestCase):
     def setUp(self):

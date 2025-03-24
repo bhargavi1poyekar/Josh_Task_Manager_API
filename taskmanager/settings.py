@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'tasks',
     'rest_framework_simplejwt',
     'django_extensions',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -148,5 +149,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django's abstract user extension.
-AUTH_USER_MODEL = 'tasks.User'
+AUTH_USER_MODEL = 'users.User'
 

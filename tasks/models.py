@@ -1,20 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-class User(AbstractUser):
-    mobile = models.CharField(max_length=10, blank=True, null=True)
-    
-    @property
-    def name(self):
-        return f"{self.first_name} {self.last_name}".strip()
-
-    class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-        ordering = ['last_name', 'first_name']
-
-    def __str__(self):
-        return self.name or self.username
+from django.conf import settings
 
 class Task(models.Model):
 
@@ -37,7 +22,7 @@ class Task(models.Model):
     task_type = models.CharField(max_length=1, choices=TASK_TYPES, default='O')
     completed_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
-    assigned_users = models.ManyToManyField(User, related_name='tasks')
+    assigned_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='tasks')
     
     def __str__(self):
         return self.name

@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Task, User
-from .auth_serializers import UserSerializer
+from .models import Task
+from users.models import User
+from users.serializers import UserSerializer
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_users = UserSerializer(many=True, read_only=True)

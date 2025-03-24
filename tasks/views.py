@@ -1,12 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .models import Task, User
+from .models import Task
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
 from .serializers import (TaskSerializer, TaskCreateSerializer, 
                          TaskAssignSerializer)
-from .auth_serializers import UserSerializer, UserRegistrationSerializer
+from users.serializers import UserSerializer, UserRegistrationSerializer
+from users.models import User
 
 class TaskCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]

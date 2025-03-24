@@ -1,7 +1,8 @@
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
-from tasks.models import User, Task
-from tasks.auth_serializers import (
+from tasks.models import Task
+from users.models import User
+from users.serializers import (
     UserSerializer,
     UserRegistrationSerializer
 )

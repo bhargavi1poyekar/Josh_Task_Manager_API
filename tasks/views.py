@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from .models import Task, User
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotFound
 from .serializers import (TaskSerializer, TaskCreateSerializer, 
                          TaskAssignSerializer, UserSerializer, UserRegistrationSerializer)
 
@@ -26,6 +27,12 @@ class TaskAssignView(generics.GenericAPIView):
         
         user_ids = serializer.validated_data['user_ids']
         users = User.objects.filter(id__in=user_ids)
+
+        # Validate all users exist
+        if len(users) != len(user_ids):
+            missing_ids = set(user_ids) - set(users.values_list('id', flat=True))
+            raise NotFound(f"Users not found: {missing_ids}")
+        
         task.assigned_users.add(*users)
         
         return Response(

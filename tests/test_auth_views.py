@@ -56,7 +56,20 @@ class AuthViewTests(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('username', response.data)
-
+    
+    def test_password_mismatch(self):
+        url = reverse('user-register')
+        data = {
+            'username': 'newuser',
+            'password': 'password123',
+            'password2': 'differentpassword',  # Doesn't match
+            'email': 'new@example.com',
+            'first_name': 'password',
+            'last_name': 'mismatch'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
     def test_jwt_login(self):
         url = reverse('token_obtain_pair')
         data = {
@@ -66,3 +79,21 @@ class AuthViewTests(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
+    
+    def test_login_nonexistent_user(self):
+        url = reverse('token_obtain_pair')
+        data = {
+            'username': 'nouser',  
+            'password': 'anypassword'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_login_wrong_password(self):
+        url = reverse('token_obtain_pair')
+        data = {
+            'username': 'existinguser',
+            'password': 'wrongpassword'  # Incorrect
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -24,10 +24,12 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 
 ### Setup
 
-1. Clone the repository:
+1. Clone the repository or extract from ZIP:
    ```bash
    git clone https://github.com/bhargavi1poyekar/Josh_Task_Manager_API.git
-   cd taskmanager
+   or extract the ZIP file
+   cd Josh_Task_Manager_API-main
+
 2. Create and activate virtual environments. 
     ```bash
     python -m venv venv
@@ -35,26 +37,43 @@ A RESTful API for managing tasks with user authentication powered by Django REST
     venv\Scripts\activate
     # Mac/Linux:
     source venv/bin/activate
+    ```
+    It might take some time to create the virtual environment. 
 3. Install dependencies.
     ```bash
     pip install -r requirements.txt
+    ```
+    It might take some time to download all the dependency requirements. 
 4. Set up environment variables:
     ```bash
-    cp .env.example .env
+    For Linux
+    cp .env.example .env 
+    For Windows
+    copy .env.example .env
+    ```
     
     Edit .env with your settings:
-    SECRET_KEY=your-secret-key-here
-    DEBUG=True
-    DATABASE_URL=sqlite:///db.sqlite3 
-5. Run migrations
+    ```
+    SECRET_KEY='your-secret-key-here'
+    DEBUG='True'
+    DATABASE_URL='sqlite:///db.sqlite3'
+    ```
+    Generate your secret key using:
+    ```
+    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+    ```
+    Copy the secret and add it to the .env 
+6. Run migrations
     ```bash
+    python manage.py makemigrations users
+    python manage.py makemigrations tasks
     python manage.py migrate
 
-6. Run development server
+7. Run development server
     ```
     python manage.py runsslserver
 
-7. Run tests:
+8. Run tests:
     ```
     python manage.py test tests
 ## API Endpoints Structure

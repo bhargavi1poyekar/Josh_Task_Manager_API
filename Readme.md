@@ -22,8 +22,8 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/task-manager-api.git
-   cd task-manager-api
+   git clone https://github.com/bhargavi1poyekar/Josh_Task_Manager_API.git
+   cd taskmanager
 2. Create and activate virtual environments. 
     ```bash
     python -m venv venv
@@ -45,10 +45,8 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 5. Run migrations
     ```bash
     python manage.py migrate
-6. Create superuser
-    ```
-    python manage.py createsuperuser
-7. Run development server
+
+6. Run development server
     ```
     python manage.py runserver
 

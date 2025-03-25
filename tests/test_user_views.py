@@ -123,7 +123,7 @@ class AuthViewTests(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        self.assertIn('access', response.data['tokens'])
     
     def test_login_nonexistent_user(self) -> None:
         """

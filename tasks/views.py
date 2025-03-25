@@ -47,6 +47,24 @@ class TaskCreateView(generics.CreateAPIView):
                 code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def create(self, request, *args, **kwargs):
+        """Handles the response formatting"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Let perform_create handle the save operation
+        self.perform_create(serializer)
+        
+        # Now build our custom response
+        return Response(
+            {
+                'status': 'success',
+                'task_id': serializer.instance.id,  # Access the saved instance
+                'data': serializer.data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
     def handle_exception(self, exc):
         """
         Exception handling for consistent error responses
@@ -154,6 +172,18 @@ class UserTasksView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {
+                'status': 'success',
+                'user_id': self.kwargs['user_id'],
+                'tasks': serializer.data,
+                'count': queryset.count()
+            },
+            status=status.HTTP_200_OK
+        )
 
     def get_queryset(self):
         """Get validated queryset"""

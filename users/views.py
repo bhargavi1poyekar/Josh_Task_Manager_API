@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer
@@ -23,6 +23,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     throttle_classes = [AnonRateThrottle]
     serializer_class = CustomTokenObtainPairSerializer
 
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.user
+        
+        return Response({
+            'status': 'success',
+            'message': 'Authentication successful',
+            'tokens': response.data,
+        }, status=status.HTTP_200_OK)
+
     def handle_exception(self, exc):
         if isinstance(exc, Throttled):
             # Custom response when throttled
@@ -30,7 +42,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 'detail': 'You are making too many requests. Please wait.',
                 'wait_time': f"{exc.wait} seconds"
             }, status=429)
-        return super().handle_exception(exc)
+        return Response({
+            'status': 'error',
+            'message': 'Authentication failed',
+            'detail': str(exc.detail) if hasattr(exc, 'detail') else str(exc)
+        }, status=getattr(exc, 'status_code', 401))
 
 class UserRegistrationView(generics.CreateAPIView):
     """
@@ -96,6 +112,23 @@ class UserRegistrationView(generics.CreateAPIView):
                     "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 }
             )
+    
+    def create(self, request, *args, **kwargs):
+        """Handles the response formatting"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # This will call perform_create() internally
+        self.perform_create(serializer)
+        
+        # Now we can access the saved user via serializer.instance
+        return Response({
+            'status': 'success',
+            'message': 'User registered successfully',
+            'user_id': serializer.instance.id,
+            'username': serializer.instance.username,
+            'email': serializer.instance.email
+        }, status=status.HTTP_201_CREATED)
     
     def handle_exception(self, exc):
         if isinstance(exc, Throttled):

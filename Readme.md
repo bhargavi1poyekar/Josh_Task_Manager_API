@@ -52,8 +52,11 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 
 6. Run development server
     ```
-    python manage.py runserver
+    python manage.py runsslserver
 
+7. Run tests:
+    ```
+    python manage.py test tests
 ## API Endpoints Structure
 
 ### Authentication Endpoints
@@ -76,55 +79,80 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 
 ### 1. Registration Request
 ```json
-POST /api/auth/register/
-{
-    "username": "john_doe",
-    "email": "john@example.com",
+curl -k -X POST \
+  https://localhost:8000/api/v1/auth/register/ \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "username": "bhargavi_poyekar",
+    "email": "bhargavi_poy@example.com",
     "password": "securepassword123",
     "password2": "securepassword123",
-    "first_name": "John",
-    "last_name": "Doe",
-    "mobile": "+1234567890"
-}
+    "first_name": "Bhargavi",
+    "last_name": "Poyekar",
+    "mobile": "+1234567892"
+  }'
 ```
+If a user with the given username, email or mobile already exists, it would give a 400 Bad request error, since duplicates are not allowed. If you are trying to register a users, again with the same request, change these 3 fields. 
+
+Note: -k disables SSL certificate verification. 
+
+### Registration response:
+
+![Register_Response](Response_images/user_register_response.png)
+
 ### 2. Login Request
 ```json
-POST /api/auth/login/
-{
-    "username": "john_doe",
+curl -k -X POST \
+  https://localhost:8000/api/v1/auth/login/ \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "username": "bhargavi_poyekar",
     "password": "securepassword123"
-}
+  }'
 ```
+### Login Response:
+
+![login_response](Response_images/user_login_response.png)
+![alt text](image.png)
 ### 3. Create Task Request
 ```json
-POST /api/tasks/create/
-{
-    "name": "Complete project",
-    "description": "Finish all pending tasks",
+curl -k -X POST \
+  https://localhost:8000/api/v1/tasks/create/ \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQyOTI5MTk3LCJpYXQiOjE3NDI5MjU1OTcsImp0aSI6IjEwMTczMWQyNzM1NDQwZWRhNGMwM2JmYWI3NDJmM2EzIiwidXNlcl9pZCI6MywibmFtZSI6IkJoYXJnYXZpIFBveWVrYXIiLCJlbWFpbCI6ImJoYWdyYXZpQGV4YW1wbGUuY29tIiwibW9iaWxlIjoiKzExMjM0NTY3ODkwIn0.xf_1IFXE3zancOFSNnkoFBPNhQttPsk-mikG3nytSSw' \
+  -d '{
+    "name": "Task Manager API",
+    "description": "Complete Josh Talks Assessment.",
     "task_type": "W"
-}
+  }'
 ```
+You can use this hardcoded token, if it hasn't expired (Only for this assessment purpose.) If it has expired, you can just copy paste the access token from previous response of login. 
+
+### Create Task Response:
+
+![alt text](Response_images/task_creation_response.png)
+
 ### 4. Assign Task Request
 ```json
-POST /api/tasks/1/assign/
-{
+curl -k -X POST \
+  https://localhost:8000/api/v1/tasks/1/assign/ \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQyOTI5MTk3LCJpYXQiOjE3NDI5MjU1OTcsImp0aSI6IjEwMTczMWQyNzM1NDQwZWRhNGMwM2JmYWI3NDJmM2EzIiwidXNlcl9pZCI6MywibmFtZSI6IkJoYXJnYXZpIFBveWVrYXIiLCJlbWFpbCI6ImJoYWdyYXZpQGV4YW1wbGUuY29tIiwibW9iaWxlIjoiKzExMjM0NTY3ODkwIn0.xf_1IFXE3zancOFSNnkoFBPNhQttPsk-mikG3nytSSw' \
+  -d '{
     "user_ids": [2, 3]
-}
+  }'
 ```
+### Assign Task Response
+
+![Task Assign response](Response_images/task_assign_response.png)
+
 ### 5. Get User Tasks Response
 ```json
-GET /api/users/1/tasks/
-[
-    {
-        "id": 1,
-        "name": "Complete project",
-        "description": "Finish all pending tasks",
-        "status": "P",
-        "assigned_users": [
-            {"id": 1, "name": "John Doe"},
-            {"id": 2, "name": "Jane Smith"}
-        ]
-    }
-]
+curl -k -X GET \
+  https://localhost:8000/api/v1/users/2/tasks/ \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQyOTI5MTk3LCJpYXQiOjE3NDI5MjU1OTcsImp0aSI6IjEwMTczMWQyNzM1NDQwZWRhNGMwM2JmYWI3NDJmM2EzIiwidXNlcl9pZCI6MywibmFtZSI6IkJoYXJnYXZpIFBveWVrYXIiLCJlbWFpbCI6ImJoYWdyYXZpQGV4YW1wbGUuY29tIiwibW9iaWxlIjoiKzExMjM0NTY3ODkwIn0.xf_1IFXE3zancOFSNnkoFBPNhQttPsk-mikG3nytSSw' 
 
+```
+### Get User Tasks Response:
 
+![Get User Tasks Response](Response_images/get_user_tasks_response.png)

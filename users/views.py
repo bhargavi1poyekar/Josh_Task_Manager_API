@@ -2,6 +2,9 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework.exceptions import Throttled
+from rest_framework.response import Response
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
@@ -17,7 +20,17 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     - 200 OK: Returns access and refresh tokens
     - 401 Unauthorized: Invalid credentials
     """
+    throttle_classes = [AnonRateThrottle]
     serializer_class = CustomTokenObtainPairSerializer
+
+    def handle_exception(self, exc):
+        if isinstance(exc, Throttled):
+            # Custom response when throttled
+            return Response({
+                'detail': 'You are making too many requests. Please wait.',
+                'wait_time': f"{exc.wait} seconds"
+            }, status=429)
+        return super().handle_exception(exc)
 
 class UserRegistrationView(generics.CreateAPIView):
     """
@@ -34,6 +47,7 @@ class UserRegistrationView(generics.CreateAPIView):
     - 400 Bad Request: Invalid input data
     - 500 Internal Server Error: Unexpected error
     """
+    throttle_classes = [AnonRateThrottle]
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
     
@@ -82,3 +96,12 @@ class UserRegistrationView(generics.CreateAPIView):
                     "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 }
             )
+    
+    def handle_exception(self, exc):
+        if isinstance(exc, Throttled):
+            # Custom response when throttled
+            return Response({
+                'detail': 'You are making too many requests. Please wait.',
+                'wait_time': f"{exc.wait} seconds"
+            }, status=429)
+        return super().handle_exception(exc)

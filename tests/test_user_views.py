@@ -5,6 +5,7 @@ from users.models import User
 from django.utils import timezone
 
 class AuthViewTests(APITestCase):
+    
     def setUp(self):
         self.user = User.objects.create_user(
             username='testuser',
@@ -97,3 +98,24 @@ class AuthViewTests(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_anon_throttling_for_registration(self):
+        """Test that anonymous users are throttled for registration attempts."""
+        url = reverse('user-register')
+        data = {
+            'username': 'newuser',
+            'password': 'newpass123',
+            'password2': 'newpass123',
+            'email': 'new@example.com',
+            'first_name': 'New',
+            'last_name': 'User' 
+
+        }
+        # anon limit is 50/hour. 
+        for _ in range(50):
+            response = self.client.post(url, data)
+            self.assertIn(response.status_code, [status.HTTP_201_CREATED, status.HTTP_400_BAD_REQUEST])
+        
+        # 51st request should be throttled
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

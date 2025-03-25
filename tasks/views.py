@@ -9,7 +9,8 @@ from django.db import transaction
 from .serializers import TaskSerializer, TaskCreateSerializer, TaskAssignSerializer
 from users.serializers import UserSerializer, UserRegistrationSerializer
 from users.models import User
-
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.exceptions import Throttled
 
 class TaskCreateView(generics.CreateAPIView):
     """
@@ -26,6 +27,9 @@ class TaskCreateView(generics.CreateAPIView):
     - 400 Bad Request: Invalid input data
     - 401 Unauthorized: Authentication required
     """
+
+    throttle_classes = [UserRateThrottle]
+    throttle_scope = 'tasks'
     permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
@@ -52,6 +56,13 @@ class TaskCreateView(generics.CreateAPIView):
                 {'error': str(exc)},
                 status=exc.status_code
             )
+    
+        if isinstance(exc, Throttled):
+            # Custom response when throttled
+            return Response({
+                'detail': 'You are making too many requests. Please wait.',
+                'wait_time': f"{exc.wait} seconds"
+            }, status=429)
         return super().handle_exception(exc)
 
 
@@ -70,6 +81,8 @@ class TaskAssignView(generics.GenericAPIView):
     - Returns 403 Forbidden if user lacks permission
     """
 
+    throttle_classes = [UserRateThrottle]
+    throttle_scope = 'tasks'
     permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     serializer_class = TaskAssignSerializer
@@ -117,7 +130,16 @@ class TaskAssignView(generics.GenericAPIView):
                 {'error': str(e)},
                 status=getattr(e, 'status_code', status.HTTP_400_BAD_REQUEST)
             )
-        
+    
+    def handle_exception(self, exc):
+        if isinstance(exc, Throttled):
+            # Custom response when throttled
+            return Response({
+                'detail': 'You are making too many requests. Please wait.',
+                'wait_time': f"{exc.wait} seconds"
+            }, status=429)
+        return super().handle_exception(exc)
+
 
 class UserTasksView(generics.ListAPIView):
     """
@@ -127,6 +149,8 @@ class UserTasksView(generics.ListAPIView):
     - 200 OK: List of tasks
     - 404 Not Found: If requested user doesn't exist
     """
+    throttle_classes = [UserRateThrottle]
+    throttle_scope = 'tasks'
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
 
@@ -140,4 +164,13 @@ class UserTasksView(generics.ListAPIView):
             raise NotFound(f"User {user_id} not found")
         
         return Task.objects.filter(assigned_users__id=user_id)
+    
+    def handle_exception(self, exc):
+        if isinstance(exc, Throttled):
+            # Custom response when throttled
+            return Response({
+                'detail': 'You are making too many requests. Please wait.',
+                'wait_time': f"{exc.wait} seconds"
+            }, status=429)
+        return super().handle_exception(exc)
 

@@ -31,7 +31,7 @@ class UserModelTest(TestCase):
         # Valid case
         valid_user = User(
             **self.valid_data,
-            mobile="1234567890"  # Valid format
+            mobile="+1234567890"  # Valid format
         )
         valid_user.full_clean()  # Should not raise
 
@@ -39,7 +39,7 @@ class UserModelTest(TestCase):
         with self.assertRaises(ValidationError):
             invalid_user = User(
                 **self.valid_data,
-                mobile="111234567890" 
+                mobile="11123456789000000000" 
             )
             invalid_user.full_clean()
 

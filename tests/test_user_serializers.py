@@ -15,7 +15,7 @@ class UserSerializerTest(TestCase):
             email='test@example.com',
             first_name='Test',
             last_name='User',
-            mobile='1234567890'
+            mobile='+1234567890'
         )
 
     def test_serializer_output(self):

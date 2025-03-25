@@ -47,16 +47,20 @@ INSTALLED_APPS = [
     'django_extensions',
     'users',
     'sslserver',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tasks.logging.APILoggingMiddleware',
+    'users.logging.APILoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'taskmanager.urls'
@@ -109,7 +113,6 @@ SIMPLE_JWT = {
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -165,4 +168,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django's abstract user extension.
 AUTH_USER_MODEL = 'users.User'
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'api.log',
+        },
+    },
+    'loggers': {
+        'api': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        },
+    },
+}
+
 

@@ -2,6 +2,10 @@
 
 A RESTful API for managing tasks with user authentication powered by Django REST Framework and JWT.
 
+## Sequence Diagram: 
+
+[![Task-Manager-Sequence-Diagram.png](https://i.postimg.cc/d3Vy1bvF/Task-Manager-Sequence-Diagram.png)](https://postimg.cc/xJBCpFcp)
+
 ## Features
 
 - User registration and authentication
@@ -56,17 +60,17 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 
 | Endpoint                | Method | Description                          | Request Body                                                                 | Headers               |
 |-------------------------|--------|--------------------------------------|------------------------------------------------------------------------------|-----------------------|
-| `/api/auth/register/`   | POST   | Register new user                    | `{username, email, password, password2, first_name, last_name, mobile}`     | `Content-Type: JSON` |
-| `/api/auth/login/`      | POST   | Obtain JWT tokens                   | `{username, password}`                                                      | `Content-Type: JSON` |
-| `/api/auth/refresh/`    | POST   | Refresh access token                 | `{refresh}`                                                                 | `Content-Type: JSON` |
+| `/api/v1/auth/register/`   | POST   | Register new user                    | `{username, email, password, password2, first_name, last_name, mobile}`     | `Content-Type: JSON` |
+| `/api/v1/auth/login/`      | POST   | Obtain JWT tokens                   | `{username, password}`                                                      | `Content-Type: JSON` |
+| `/api/v1/auth/refresh/`    | POST   | Refresh access token                 | `{refresh}`                                                                 | `Content-Type: JSON` |
 
 ### Task Endpoints
 
 | Endpoint                      | Method | Description                          | Request Body                                                                 | Headers                           |
 |-------------------------------|--------|--------------------------------------|------------------------------------------------------------------------------|-----------------------------------|
-| `/api/tasks/create/`          | POST   | Create new task                      | `{name, description, task_type}`                                            | `Authorization: Bearer <token>`   |
-| `/api/tasks/{id}/assign/`     | POST   | Assign task to users                 | `{user_ids: [id1, id2]}`                                                    | `Authorization: Bearer <token>`   |
-| `/api/users/{user_id}/tasks/` | GET    | Get tasks assigned to specific user  | -                                                                           | `Authorization: Bearer <token>`   |
+| `/api/v1/tasks/create/`          | POST   | Create new task                      | `{name, description, task_type}`                                            | `Authorization: Bearer <token>`   |
+| `/api/v1/tasks/{id}/assign/`     | POST   | Assign task to users                 | `{user_ids: [id1, id2]}`                                                    | `Authorization: Bearer <token>`   |
+| `/api/v1/users/{user_id}/tasks/` | GET    | Get tasks assigned to specific user  | -                                                                           | `Authorization: Bearer <token>`   |
 
 ## Request/Response Examples
 

@@ -6,7 +6,7 @@ migrations/
 .env
 .env.local
 .DS_Store
-.log
+*.log
 
 # Virtual Environment
 venv/

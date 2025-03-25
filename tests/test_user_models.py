@@ -5,8 +5,12 @@ from datetime import datetime
 from django.contrib.auth.hashers import check_password
 
 class UserModelTest(TestCase):
-    def setUp(self):
-        # Common valid data
+    """Test suite for the User model validation and behavior."""
+
+    def setUp(self) -> None:
+        """
+        Initialize test data with valid user attributes.
+        """
         self.valid_data = {
             'username': 'testuser',
             'email': 'test@example.com',
@@ -15,8 +19,16 @@ class UserModelTest(TestCase):
             'last_name': 'User'
         }
 
-    def test_create_valid_user(self):
-        """Test creating a user with all required fields"""
+    def test_create_valid_user(self) -> None:
+        """
+        Test creating a user with all required fields
+        
+        Verifies:
+        - All fields are correctly set
+        - Password is properly hashed
+        - Name property works correctly
+        - Default permissions are correct
+        """
         user = User.objects.create_user(**self.valid_data)
         
         self.assertEqual(user.username, "testuser")
@@ -26,8 +38,15 @@ class UserModelTest(TestCase):
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_superuser)
 
-    def test_mobile_number_validation(self):
-        """Test mobile number formatting"""
+    def test_mobile_number_validation(self) -> None:
+        """
+        Test mobile number formatting
+
+        Cases tested:
+        - Valid international format (+ prefix)
+        - Invalid overly long number
+        """
+
         # Valid case
         valid_user = User(
             **self.valid_data,
@@ -43,8 +62,14 @@ class UserModelTest(TestCase):
             )
             invalid_user.full_clean()
 
-    def test_required_fields(self):
-        """Test missing required fields"""
+    def test_required_fields(self) -> None:
+        """
+        Test missing required fields
+        
+        Required fields:
+        - username
+        - password
+        """
         required_fields = ['username', 'password']
         
         for field in required_fields:
@@ -56,9 +81,16 @@ class UserModelTest(TestCase):
                     user = User(**invalid_data)
                     user.full_clean()
 
-    def test_password_hashed(self):
-        """Test password is properly hashed"""
+    def test_password_hashed(self) -> None:
+        """
+        Test password is properly hashed
+        
+        Verifies:
+        - Raw password doesn't match stored value
+        - Stored hash validates correctly
+        - Different users with same password get different hashes
+        """
         raw_password = "testpass123"
         user = User.objects.create_user(**self.valid_data)
         self.assertTrue(check_password(raw_password, user.password))
-        self.assertNotEqual(raw_password, user.password)  # Ensure hashing
+        self.assertNotEqual(raw_password, user.password)

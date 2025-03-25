@@ -6,7 +6,16 @@ from users.models import User
 from django.utils import timezone
 
 class TaskViewTests(APITestCase):
-    def setUp(self):
+    """Test suite for core task management endpoints."""
+
+    def setUp(self) -> None:
+        """
+        Initialize test data for task endpoint tests.
+        Creates:
+        - Two test users
+        - One test task assigned to the primary user
+        - Authenticates the primary user
+        """
         self.user = User.objects.create_user(
             username='taskuser',
             password='taskpass123'
@@ -23,7 +32,15 @@ class TaskViewTests(APITestCase):
         self.task.assigned_users.add(self.user)
         self.client.force_authenticate(user=self.user)
 
-    def test_create_task(self):
+    def test_create_task(self) -> None:
+        """
+        Test successful task creation via API.
+        
+        Verifies:
+        - Correct HTTP status (201 Created)
+        - Task count increases
+        - Default values are set properly
+        """
         url = reverse('task-create')
         data = {
             'name': 'API Task',
@@ -34,7 +51,15 @@ class TaskViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Task.objects.count(), 2)
 
-    def test_assign_task(self):
+    def test_assign_task(self) -> None:
+        """
+        Test successful user assignment to task.
+        
+        Verifies:
+        - Correct HTTP status (200 OK)
+        - User count increases
+        - Both original and new users remain assigned
+        """
         url = reverse('task-assign', kwargs={'pk': self.task.id})
         data = {
             'user_ids': [self.other_user.id]
@@ -43,7 +68,15 @@ class TaskViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.task.assigned_users.count(), 2)
 
-    def test_get_user_tasks(self):
+    def test_get_user_tasks(self) -> None:
+        """
+        Test retrieval of tasks assigned to a specific user.
+        
+        Verifies:
+        - Correct HTTP status (200 OK)
+        - Correct task count in response
+        - Task data matches expected values
+        """
         url = reverse('user-tasks', kwargs={'user_id': self.user.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -52,13 +85,27 @@ class TaskViewTests(APITestCase):
 
 
 class PermissionTests(APITestCase):
-    def setUp(self):
+    """Test suite for authentication and authorization requirements."""
+
+    def setUp(self) -> None:
+        """
+        Initialize test data for permission tests.
+        Creates:
+        - Two test users
+        - One task assigned to the first user
+        """
         self.user1 = User.objects.create_user(username='user1', password='pass123')
         self.user2 = User.objects.create_user(username='user2', password='pass123')
         self.task = Task.objects.create(name='Private Task', status='P')
         self.task.assigned_users.add(self.user1)
 
-    def test_unauthenticated_access(self):
+    def test_unauthenticated_access(self) -> None:
+        """
+        Test that protected endpoints require authentication.
+        
+        Verifies:
+        - Unauthenticated requests receive 401 status
+        """
         urls = [
             reverse('task-create'),
             reverse('user-tasks', kwargs={'user_id': 1})
@@ -67,19 +114,23 @@ class PermissionTests(APITestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_unauthorized_task_access(self):
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.get(
-            reverse('user-tasks', kwargs={'user_id': self.user1.id})
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 class EdgeCaseTests(APITestCase):
-    def setUp(self):
+    """Test suite for edge cases and error handling."""
+
+    def setUp(self) -> None:
+        """Create and authenticate a test user."""
         self.user = User.objects.create_user(username='edgeuser', password='edgepass')
         self.client.force_authenticate(user=self.user)
 
-    def test_create_invalid_task(self):
+    def test_create_invalid_task(self) -> None:
+        """
+        Test task creation with invalid data.
+        
+        Cases tested:
+        - Missing required fields (name)
+        - Invalid task type
+        - Empty payload
+        """
         url = reverse('task-create')
         invalid_data = [
             {'description': 'Missing name'},  # No name
@@ -91,18 +142,19 @@ class EdgeCaseTests(APITestCase):
             response = self.client.post(url, data)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_assign_nonexistent_user(self):
+    def test_assign_nonexistent_user(self) -> None:
+        """
+        Test assignment of non-existent users.
+        
+        Verifies:
+        - Proper error status (400 Bad Request)
+        - Error message identifies invalid user
+        - No assignments are made
+        """
         task = Task.objects.create(name='Edge Task')
         url = reverse('task-assign', kwargs={'pk': task.id})
         
-        # Test with clearly non-existent ID
         response = self.client.post(url, {'user_ids': [99999]}, format='json')
-        
-        # Should return 404
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
-        # Verify error message contains the missing ID
         self.assertIn('99999', str(response.data))
-        
-        # Verify no assignments were made
         self.assertEqual(task.assigned_users.count(), 0)

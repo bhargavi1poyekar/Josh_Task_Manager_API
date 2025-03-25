@@ -78,7 +78,7 @@ A RESTful API for managing tasks with user authentication powered by Django REST
 ## Request/Response Examples
 
 ### 1. Registration Request
-```json
+```
 curl -k -X POST \
   https://localhost:8000/api/v1/auth/register/ \
   -H 'Content-Type: application/json' \
@@ -101,7 +101,7 @@ Note: -k disables SSL certificate verification.
 ![Register_Response](Response_images/user_register_response.png)
 
 ### 2. Login Request
-```json
+```
 curl -k -X POST \
   https://localhost:8000/api/v1/auth/login/ \
   -H 'Content-Type: application/json' \
@@ -113,9 +113,9 @@ curl -k -X POST \
 ### Login Response:
 
 ![login_response](Response_images/user_login_response.png)
-![alt text](image.png)
+
 ### 3. Create Task Request
-```json
+```
 curl -k -X POST \
   https://localhost:8000/api/v1/tasks/create/ \
   -H 'Content-Type: application/json' \
@@ -133,7 +133,7 @@ You can use this hardcoded token, if it hasn't expired (Only for this assessment
 ![alt text](Response_images/task_creation_response.png)
 
 ### 4. Assign Task Request
-```json
+```
 curl -k -X POST \
   https://localhost:8000/api/v1/tasks/1/assign/ \
   -H 'Content-Type: application/json' \
@@ -147,7 +147,7 @@ curl -k -X POST \
 ![Task Assign response](Response_images/task_assign_response.png)
 
 ### 5. Get User Tasks Response
-```json
+```
 curl -k -X GET \
   https://localhost:8000/api/v1/users/2/tasks/ \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQyOTI5MTk3LCJpYXQiOjE3NDI5MjU1OTcsImp0aSI6IjEwMTczMWQyNzM1NDQwZWRhNGMwM2JmYWI3NDJmM2EzIiwidXNlcl9pZCI6MywibmFtZSI6IkJoYXJnYXZpIFBveWVrYXIiLCJlbWFpbCI6ImJoYWdyYXZpQGV4YW1wbGUuY29tIiwibW9iaWxlIjoiKzExMjM0NTY3ODkwIn0.xf_1IFXE3zancOFSNnkoFBPNhQttPsk-mikG3nytSSw' 
@@ -156,3 +156,45 @@ curl -k -X GET \
 ### Get User Tasks Response:
 
 ![Get User Tasks Response](Response_images/get_user_tasks_response.png)
+
+## API Best Practices Followed
+
+### 1. Design Principles:
+
+* Used proper HTTP methods (GET, POST) and status codes (200 OK, 201 Created, 400 Bad Request, etc.). 
+
+* Included API versioning in the URL (/api/v1/users).
+
+### 2. Request/Response:
+
+* Used JSON with Content-Type: application/json.
+* Maintained consistent response format. 
+* Implemented Error Handling with propr HTTP Status codes and structured error details.
+
+### 3. Security
+* Used JWT for stateless auth.
+* Enforced TLS Encryption (HTTPS).
+* Implemented Rate Limiting to prevent DOS attacks.
+* Validated all inputs using serializer. 
+
+### 4. Testing
+
+* Unit testing with pytest. 
+* Also performed API testing using POSTMAN. 
+* Included Test Request/Response examples in Readme.md
+* Continuous Integration using Github Actions Workflows. 
+
+### 5. Maintenance:
+* Enabled logging for troubleshooting any errors. 
+
+
+## Improvements (can be added in case of extra time):
+1. Adding more API endpoints for editing, deleting users/tasks. 
+2. Adding a UI for the webservice. 
+3. Implementing HTTPS with Apache for production environment. 
+4. Enabling caching and token blocklisting.
+5. Performing Email verification.
+6. Using CORS. 
+
+
+
